@@ -198,20 +198,15 @@ function FunnelBuilderInner() {
 
   const handleSidebarStep = useCallback((step: typeof PREDEFINED_STEPS[0]) => {
     const newNodeId = uuidv4();
-    
     const rightmostNode = nodes.length > 0 ? nodes.reduce((prev, curr) => (curr.position.x > prev.position.x ? curr : prev)) : null;
     const lowestNode = nodes.length > 0 ? nodes.reduce((prev, curr) => (curr.position.y > prev.position.y ? curr : prev)) : null;
-    
     const newX = rightmostNode ? rightmostNode.position.x + FUNNEL_METRICS.SAFETY_X : 240;
     const newY = lowestNode ? lowestNode.position.y : 60;
-
     const newNode: FunnelNodeType = {
       id: newNodeId, type: 'customFunnelNode', position: { x: newX, y: newY },
       data: { ...step.data }, selected: true
     };
-
     setNodes(nds => [...nds.map(n => ({ ...n, selected: false })), newNode]);
-
     setTimeout(() => {
         setCenter(newX + FUNNEL_METRICS.CENTER_OFFSET_X, newY + FUNNEL_METRICS.CENTER_OFFSET_Y, { zoom: 1, duration: FUNNEL_METRICS.ANIMATION_DURATION });
     }, 50);
@@ -237,31 +232,17 @@ function FunnelBuilderInner() {
     <div className="fixed inset-0 w-screen h-screen flex flex-col font-sans overflow-hidden transition-colors duration-500" style={{ background: currentTheme === 'dark' ? 'linear-gradient(to bottom right, #000000, #0a192f)' : 'linear-gradient(to bottom right, #e2e8f0, #94a3b8)', zIndex: 0 }}>
       <style dangerouslySetInnerHTML={{ __html: `
         .react-flow__node:not(.dragging) { transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        
-        .react-flow__controls {
-          z-index: 9999 !important;
-          pointer-events: auto !important;
-        }
-        
+        .react-flow__controls { z-index: 9999 !important; pointer-events: auto !important; }
         .react-flow__controls-button {
           background-color: ${currentTheme === 'dark' ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.95)'} !important;
           border: 1px solid ${currentTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} !important;
-          backdrop-filter: blur(4px);
-          cursor: pointer !important;
-          pointer-events: auto !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          width: 32px !important;
-          height: 32px !important;
+          backdrop-filter: blur(4px); cursor: pointer !important; pointer-events: auto !important;
+          display: flex !important; align-items: center !important; justify-content: center !important;
+          width: 32px !important; height: 32px !important;
         }
-        
-        .react-flow__controls-button svg,
-        .react-flow__controls-button path {
-          fill: ${currentTheme === 'dark' ? '#f8fafc' : '#1e293b'} !important;
-          pointer-events: none !important;
+        .react-flow__controls-button svg, .react-flow__controls-button path {
+          fill: ${currentTheme === 'dark' ? '#f8fafc' : '#1e293b'} !important; pointer-events: none !important;
         }
-        
         .react-flow__edge-path { stroke: ${currentTheme === 'dark' ? '#94a3b8' : '#334155'} !important; stroke-width: 2.5px !important; }
       `}} />
 
@@ -327,26 +308,17 @@ function FunnelBuilderInner() {
             connectionRadius={80}
           >
             <Background color={currentTheme === 'dark' ? '#94a3b8' : '#334155'} gap={FUNNEL_METRICS.GRID_SNAP} size={1} style={{ opacity: 0.35 }} />
-            
             <Controls position="bottom-left" showInteractive={false} className="!mb-4 !ml-4" />
-
             <MiniMap 
               position="top-right"
-              nodeColor="#3b82f6" 
-              maskColor="rgba(0,0,0,0.1)" 
-              className="dark:bg-slate-900 !mt-2 !mr-2"
-              pannable 
-              zoomable
+              nodeColor="#3b82f6" maskColor="rgba(0,0,0,0.1)" className="dark:bg-slate-900 !mt-2 !mr-2"
+              pannable zoomable
             />
           </ReactFlow>
 
           <div className="absolute bottom-4 right-4 z-50 pointer-events-none opacity-40 hover:opacity-100 transition-opacity flex flex-col items-end">
-            <p className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">
-              Luis Frantz Granado Junior
-            </p>
-            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-500 mt-0.5">
-              Frontend Engineer • Juiz de Fora, MG
-            </p>
+            <p className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">Luis Frantz Granado Junior</p>
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-500 mt-0.5">Frontend Engineer • Juiz de Fora, MG</p>
           </div>
         </div>
       </div>

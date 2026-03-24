@@ -63,77 +63,29 @@ export default function FunnelNode({ id, data, selected }: NodeProps<FunnelNodeT
 
   return (
     <div style={{ width: FUNNEL_METRICS.NODE_WIDTH, height: FUNNEL_METRICS.NODE_HEIGHT }} className="relative group font-sans">
-      <Handle 
-        type="target" 
-        position={Position.Top} 
-        style={{ 
-          left: '50%', 
-          top: '-7px',
-          transform: 'translateX(-50%)', 
-          background: currentTheme === 'dark' ? '#94a3b8' : '#475569',
-          width: '14px',
-          height: '14px'
-        }}
-        className="border-2 border-slate-700 dark:border-slate-300 z-50 transition-transform hover:scale-125" 
-      />
-
+      <Handle type="target" position={Position.Top} style={{ left: '50%', top: '-7px', transform: 'translateX(-50%)', background: currentTheme === 'dark' ? '#94a3b8' : '#475569', width: '14px', height: '14px' }} className="border-2 border-slate-700 dark:border-slate-300 z-50 transition-transform hover:scale-125" />
       <div 
         style={{
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-          padding: '24px',
-          boxSizing: 'border-box',
+          backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', padding: '24px', boxSizing: 'border-box',
           backgroundColor: currentTheme === 'dark' ? 'rgba(15, 23, 42, 0.08)' : 'rgba(255, 255, 255, 0.32)',
           borderColor: selected ? (currentTheme === 'dark' ? '#ffffff' : '#3b82f6') : (currentTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'),
         }}
-        className={`w-full h-full rounded-2xl border flex flex-col transition-all duration-300 shadow-xl 
-          ${selected 
-            ? (currentTheme === 'dark' ? 'shadow-[0_0_25px_rgba(255,255,255,0.15)]' : 'shadow-[0_0_25px_rgba(59,130,246,0.3)]') 
-            : (currentTheme === 'dark' 
-                ? 'hover:shadow-[0_0_15px_rgba(255,255,255,0.25)]' 
-                : 'hover:shadow-[0_0_15px_rgba(59,130,246,0.25)]')
-          }
-        `}
+        className={`w-full h-full rounded-2xl border flex flex-col transition-all duration-300 shadow-xl ${selected ? (currentTheme === 'dark' ? 'shadow-[0_0_25px_rgba(255,255,255,0.15)]' : 'shadow-[0_0_25px_rgba(59,130,246,0.3)]') : (currentTheme === 'dark' ? 'hover:shadow-[0_0_15px_rgba(255,255,255,0.25)]' : 'hover:shadow-[0_0_15px_rgba(59,130,246,0.25)]')}`}
       >
         <div className="flex items-center justify-between mb-4" ref={dropdownRef}>
           <div className="relative">
-            <button 
-              onClick={() => setDropdownOpen(o => !o)} 
-              aria-expanded={dropdownOpen}
-              aria-haspopup="listbox"
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-none cursor-pointer"
-            >
-              {data.stepType} <ChevronDown size={10} />
-            </button>
+            <button onClick={() => setDropdownOpen(o => !o)} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-none cursor-pointer">{data.stepType} <ChevronDown size={10} /></button>
             {dropdownOpen && (
-              <div 
-                role="listbox"
-                className="absolute top-full mt-2 left-0 z-[9999] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-2xl py-1 min-w-[160px] backdrop-blur-xl"
-              >
+              <div className="absolute top-full mt-2 left-0 z-[9999] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-2xl py-1 min-w-[160px] backdrop-blur-xl">
                 {['Topo de Funil', 'Meio de Funil', 'Fundo de Funil', 'Anúncio', 'Landing Page', 'Formulário', 'Checkout', 'Confirmação'].map(type => (
-                  <button 
-                    key={type} 
-                    role="option"
-                    onClick={() => { updateNodeData(id, { stepType: type }); setDropdownOpen(false); }} 
-                    className="w-full text-left px-3 py-2 text-xs hover:bg-blue-50 dark:hover:bg-blue-900/30 text-slate-700 dark:text-slate-300 transition-colors"
-                  >
-                    {type}
-                  </button>
+                  <button key={type} onClick={() => { updateNodeData(id, { stepType: type }); setDropdownOpen(false); }} className="w-full text-left px-3 py-2 text-xs hover:bg-blue-50 dark:hover:bg-blue-900/30 text-slate-700 dark:text-slate-300 transition-colors">{type}</button>
                 ))}
               </div>
             )}
           </div>
-          <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
-            <TrendingUp size={12} /> {conversionRate}%
-          </div>
+          <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400"><TrendingUp size={12} /> {conversionRate}%</div>
         </div>
-
-        <input
-          value={data.label} 
-          onChange={e => updateNodeData(id, { label: e.target.value })}
-          className="w-full text-base font-bold text-slate-900 dark:text-white bg-transparent border-none outline-none font-sans mb-auto"
-        />
-
+        <input value={data.label} onChange={e => updateNodeData(id, { label: e.target.value })} className="w-full text-base font-bold text-slate-900 dark:text-white bg-transparent border-none outline-none font-sans mb-auto" />
         <div className="flex flex-col gap-2.5">
           <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 font-semibold tracking-tight">
             <div className="flex items-center gap-2.5"><Users size={14} /><span>Visitantes</span></div>
@@ -145,28 +97,8 @@ export default function FunnelNode({ id, data, selected }: NodeProps<FunnelNodeT
           </div>
         </div>
       </div>
-
-      <button
-        onClick={() => setNodes(nds => nds.filter(n => n.id !== id))}
-        style={{ top: '-12px', right: '-12px' }}
-        className="absolute w-7 h-7 flex items-center justify-center rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all shadow-md hover:shadow-[0_0_15px_rgba(239,68,68,0.4)] cursor-pointer z-50"
-      >
-        <X size={14} strokeWidth={2.5} />
-      </button>
-
-      <Handle 
-        type="source" 
-        position={Position.Bottom} 
-        style={{ 
-          left: '50%', 
-          bottom: '-7px',
-          transform: 'translateX(-50%)', 
-          background: currentTheme === 'dark' ? '#94a3b8' : '#475569',
-          width: '14px',
-          height: '14px'
-        }}
-        className="border-2 border-slate-700 dark:border-slate-300 z-50 transition-transform hover:scale-125" 
-      />
+      <button onClick={() => setNodes(nds => nds.filter(n => n.id !== id))} style={{ top: '-12px', right: '-12px' }} className="absolute w-7 h-7 flex items-center justify-center rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all shadow-md hover:shadow-[0_0_15px_rgba(239,68,68,0.4)] cursor-pointer z-50"><X size={14} strokeWidth={2.5} /></button>
+      <Handle type="source" position={Position.Bottom} style={{ left: '50%', bottom: '-7px', transform: 'translateX(-50%)', background: currentTheme === 'dark' ? '#94a3b8' : '#475569', width: '14px', height: '14px' }} className="border-2 border-slate-700 dark:border-slate-300 z-50 transition-transform hover:scale-125" />
     </div>
   );
 }
