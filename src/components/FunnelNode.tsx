@@ -11,14 +11,14 @@ const STEP_TYPES = [
 ];
 
 const STEP_TYPE_COLORS: Record<string, string> = {
-  'Topo de Funil':  'bg-blue-100/70   dark:bg-blue-900/50   text-blue-800   dark:text-blue-200',
-  'Meio de Funil':  'bg-violet-100/70 dark:bg-violet-900/50 text-violet-800 dark:text-violet-200',
-  'Fundo de Funil': 'bg-emerald-100/70 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-200',
-  'Anúncio':        'bg-orange-100/70 dark:bg-orange-900/50 text-orange-800 dark:text-orange-200',
-  'Landing Page':   'bg-sky-100/70    dark:bg-sky-900/50    text-sky-800    dark:text-sky-200',
-  'Formulário':     'bg-pink-100/70   dark:bg-pink-900/50   text-pink-800   dark:text-pink-200',
-  'Checkout':       'bg-amber-100/70  dark:bg-amber-900/50  text-amber-800  dark:text-amber-200',
-  'Confirmação':    'bg-teal-100/70   dark:bg-teal-900/50   text-teal-800   dark:text-teal-200',
+  'Topo de Funil':  'bg-blue-100/80   dark:bg-blue-900/50   text-blue-800   dark:text-blue-200',
+  'Meio de Funil':  'bg-violet-100/80 dark:bg-violet-900/50 text-violet-800 dark:text-violet-200',
+  'Fundo de Funil': 'bg-emerald-100/80 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-200',
+  'Anúncio':        'bg-orange-100/80 dark:bg-orange-900/50 text-orange-800 dark:text-orange-200',
+  'Landing Page':   'bg-sky-100/80    dark:bg-sky-900/50    text-sky-800    dark:text-sky-200',
+  'Formulário':     'bg-pink-100/80   dark:bg-pink-900/50   text-pink-800   dark:text-pink-200',
+  'Checkout':       'bg-amber-100/80  dark:bg-amber-900/50  text-amber-800  dark:text-amber-200',
+  'Confirmação':    'bg-teal-100/80   dark:bg-teal-900/50   text-teal-800   dark:text-teal-200',
 };
 
 function NumericInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
@@ -40,14 +40,14 @@ function NumericInput({ value, onChange }: { value: number; onChange: (v: number
         ref={inputRef} type="text" inputMode="numeric" value={draft}
         onChange={e => setDraft(e.target.value)} onBlur={commit}
         onKeyDown={e => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') setEditing(false); }}
-        className="w-16 bg-white/40 dark:bg-black/20 backdrop-blur-sm border border-blue-400 rounded px-1 text-right outline-none text-xs font-bold text-slate-800 dark:text-white"
+        className="w-16 bg-[rgba(255,255,255,0.5)] dark:bg-[rgba(0,0,0,0.3)] backdrop-blur-sm border border-blue-400 rounded px-1 text-right outline-none text-xs font-bold text-slate-800 dark:text-white"
       />
     );
   }
 
   return (
     <strong
-      className="cursor-text rounded px-1 hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-slate-800 dark:text-white"
+      className="cursor-text rounded px-1 hover:bg-[rgba(0,0,0,0.05)] dark:hover:bg-[rgba(255,255,255,0.1)] transition-colors text-slate-800 dark:text-white"
       onClick={() => { setDraft(String(value)); setEditing(true); }} title="Clique para editar"
     >
       {value.toLocaleString('pt-BR')}
@@ -61,7 +61,7 @@ export default function FunnelNode({ id, data, selected }: NodeProps<FunnelNodeT
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const conversionRate = data.visitors > 0 ? ((data.conversions / data.visitors) * 100).toFixed(1) : '0.0';
-  const badgeColor = STEP_TYPE_COLORS[data.stepType] ?? 'bg-slate-100/60 dark:bg-slate-700/50 text-slate-700 dark:text-slate-200';
+  const badgeColor = STEP_TYPE_COLORS[data.stepType] ?? 'bg-slate-100/80 dark:bg-slate-700/80 text-slate-700 dark:text-slate-200';
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -75,65 +75,65 @@ export default function FunnelNode({ id, data, selected }: NodeProps<FunnelNodeT
     <div style={{ width: 280, height: 180 }} className="relative group font-sans">
       <Handle type="target" position={Position.Top} className="w-3 h-3 bg-slate-400 border-2 border-slate-600 dark:border-slate-300 z-50" />
 
-      {/* O SEGREDO DO GLASSMORPHISM: Fundo bem transparente (bg-white/20) + Desfoque alto (backdrop-blur-xl) */}
-      <div className={`
-        w-full h-full rounded-xl border flex flex-col overflow-visible
-        backdrop-blur-xl hover:border-blue-400/60 transition-colors duration-300
-        ${selected
-          ? 'border-blue-400 shadow-[0_8px_30px_rgba(59,130,246,0.3)] bg-white/40 dark:bg-slate-900/50'
-          : 'border-white/40 dark:border-slate-700/50 shadow-[0_8px_32px_rgba(0,0,0,0.1)] bg-white/20 dark:bg-slate-900/30'
-        }
-      `}>
-        <div style={{ padding: '20px' }} className="flex flex-col h-full bg-transparent">
-          <div className="flex items-center justify-between mb-4" ref={dropdownRef}>
-            <div className="relative">
-              <button onClick={() => setDropdownOpen(o => !o)} className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider transition-all border-none cursor-pointer ${badgeColor}`}>
-                {data.stepType} <ChevronDown size={10} className={`transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {dropdownOpen && (
-                <div className="absolute top-full mt-1 left-0 z-[9999] bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl py-1 min-w-[160px]">
-                  {STEP_TYPES.map(type => (
-                    <button key={type} onClick={() => { updateNodeData(id, { stepType: type }); setDropdownOpen(false); }} className={`w-full text-left px-3 py-1.5 text-xs hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors ${data.stepType === type ? 'font-semibold text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'}`}>
-                      {type}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-              <TrendingUp size={10} /> {conversionRate}%
-            </div>
-          </div>
-
-          <input
-            value={data.label} onChange={e => updateNodeData(id, { label: e.target.value })} placeholder="Nome da etapa..."
-            className="w-full text-sm font-bold text-slate-800 dark:text-white bg-transparent border-b border-transparent hover:border-slate-300/50 dark:hover:border-white/20 focus:border-blue-400 outline-none transition-colors placeholder:text-slate-500"
-          />
-
-          <div className="mt-auto flex flex-col gap-2.5">
-            <div className="flex items-center justify-between text-xs text-slate-700 dark:text-slate-200">
-              <div className="flex items-center gap-1.5"><Users size={13} className="text-blue-500 dark:text-blue-400 shrink-0" /><span>Visitantes</span></div>
-              <NumericInput value={data.visitors} onChange={v => updateNodeData(id, { visitors: v })} />
-            </div>
-            <div className="flex items-center justify-between text-xs text-slate-700 dark:text-slate-200">
-              <div className="flex items-center gap-1.5"><MousePointerClick size={13} className="text-emerald-500 dark:text-emerald-400 shrink-0" /><span>Conversões</span></div>
-              <NumericInput value={data.conversions} onChange={v => updateNodeData(id, { conversions: v })} />
-            </div>
-            <div className="mt-1">
-              <div className="h-1 w-full bg-black/10 dark:bg-white/10 rounded-full overflow-hidden border border-white/20 dark:border-slate-800/50">
-                <div className="h-full bg-gradient-to-r from-blue-400 to-emerald-400 rounded-full transition-all duration-500" style={{ width: `${Math.min(parseFloat(conversionRate), 100)}%` }} />
+      {/* Vidro ajustado: blur menor (4px) e fundo mais transparente */}
+      <div 
+        className={`
+          w-full h-full rounded-2xl border-[1px] flex flex-col transition-all duration-300 shadow-xl
+          ${selected
+            ? 'border-[#60a5fa] bg-[rgba(255,255,255,0.3)] dark:bg-[rgba(15,23,42,0.5)] shadow-[0_0_25px_rgba(59,130,246,0.3)]'
+            : 'border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.12)] dark:bg-[rgba(15,23,42,0.3)]'
+          }
+        `}
+        style={{
+          backdropFilter: 'blur(4px)',
+          WebkitBackdropFilter: 'blur(4px)',
+          padding: '24px',
+          boxSizing: 'border-box'
+        }}
+      >
+        <div className="flex items-center justify-between mb-4" ref={dropdownRef}>
+          <div className="relative">
+            <button onClick={() => setDropdownOpen(o => !o)} className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider transition-all border-none cursor-pointer ${badgeColor}`}>
+              {data.stepType} <ChevronDown size={10} className={`transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {dropdownOpen && (
+              <div className="absolute top-full mt-2 left-0 z-[9999] bg-[rgba(255,255,255,0.95)] dark:bg-[rgba(15,23,42,0.95)] backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-lg shadow-2xl py-1 min-w-[160px]">
+                {STEP_TYPES.map(type => (
+                  <button key={type} onClick={() => { updateNodeData(id, { stepType: type }); setDropdownOpen(false); }} className={`w-full text-left px-3 py-2 text-xs hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors ${data.stepType === type ? 'font-semibold text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'}`}>
+                    {type}
+                  </button>
+                ))}
               </div>
-            </div>
+            )}
+          </div>
+          <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(0,0,0,0.3)] px-2 py-1 rounded-full backdrop-blur-sm">
+            <TrendingUp size={12} /> {conversionRate}%
+          </div>
+        </div>
+
+        <input
+          value={data.label} onChange={e => updateNodeData(id, { label: e.target.value })} placeholder="Nome da etapa..."
+          className="w-full text-base font-bold text-slate-800 dark:text-white bg-transparent border-b border-transparent hover:border-[rgba(0,0,0,0.1)] dark:hover:border-[rgba(255,255,255,0.2)] focus:border-blue-400 outline-none transition-colors placeholder:text-slate-500 pb-1"
+        />
+
+        <div className="mt-auto flex flex-col gap-3">
+          <div className="flex items-center justify-between text-[13px] text-slate-800 dark:text-slate-200 font-medium">
+            <div className="flex items-center gap-2"><Users size={14} className="text-blue-500 dark:text-blue-400 shrink-0" /><span>Visitantes</span></div>
+            <NumericInput value={data.visitors} onChange={v => updateNodeData(id, { visitors: v })} />
+          </div>
+          <div className="flex items-center justify-between text-[13px] text-slate-800 dark:text-slate-200 font-medium">
+            <div className="flex items-center gap-2"><MousePointerClick size={14} className="text-emerald-500 dark:text-emerald-400 shrink-0" /><span>Conversões</span></div>
+            <NumericInput value={data.conversions} onChange={v => updateNodeData(id, { conversions: v })} />
           </div>
         </div>
       </div>
 
-      <div className="absolute top-[-12px] right-[-12px] w-8 h-8 flex items-center justify-center z-50 group/btn">
+      <div className="absolute top-[-14px] right-[-14px] w-8 h-8 flex items-center justify-center z-50 group/btn">
         <button
           onClick={() => setNodes(nds => nds.filter(n => n.id !== id))}
-          className="w-6 h-6 flex items-center justify-center rounded-full border border-slate-300/50 dark:border-slate-600/50 transition-all duration-300 cursor-pointer outline-none text-slate-500 dark:text-slate-400 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:text-red-500 hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-950/60 hover:shadow-[0_0_12px_rgba(239,68,68,0.4)] active:scale-95"
+          className="w-7 h-7 flex items-center justify-center rounded-full border border-[rgba(0,0,0,0.2)] dark:border-[rgba(255,255,255,0.3)] transition-all duration-300 cursor-pointer outline-none text-slate-500 dark:text-slate-400 bg-[rgba(255,255,255,0.9)] dark:bg-[rgba(15,23,42,0.9)] opacity-0 group-hover:opacity-100 hover:text-red-500 hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-950/60 hover:shadow-[0_0_12px_rgba(239,68,68,0.4)] active:scale-95 shadow-md"
         >
-          <X size={12} strokeWidth={2.5} />
+          <X size={14} strokeWidth={2.5} />
         </button>
       </div>
 
