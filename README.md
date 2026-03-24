@@ -50,7 +50,7 @@ Aceitei este desafio com o objetivo de ir além do básico. Mais do que uma ferr
 
 1.  **Clone o repositório:**
     ```bash
-    git clone https://github.com/FrantzJupiter/funil-twr
+    git clone [https://github.com/FrantzJupiter/funil-twr](https://github.com/FrantzJupiter/funil-twr)
     ```
 2.  **Instale as dependências:**
     ```bash
@@ -66,4 +66,7 @@ Aceitei este desafio com o objetivo de ir além do básico. Mais do que uma ferr
 
 Este projeto foi desenvolvido com muita dedicação e respeito pelo processo da TWR. Acredito que o código reflete a minha paixão por resolver problemas complexos com soluções elegantes.
 
-Desenvolvido por **Luis Frantz Granado Junior** — Juiz de Fora, MG.
+**Luis Frantz Granado Junior** — Juiz de Fora, MG.
+📧 [luisfrantzjr@gmail.com](mailto:luisfrantzjr@gmail.com)
+📱 (32) 99951-7315
+🔗 [LinkedIn](https://www.linkedin.com/in/frantzjunior/)

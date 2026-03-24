@@ -25,12 +25,12 @@ import { FUNNEL_METRICS } from '@/lib/constants';
 const nodeTypes = { customFunnelNode: FunnelNode };
 
 const PREDEFINED_STEPS = [
-  { label: 'Anúncio', icon: Megaphone, color: 'text-orange-500', data: { label: 'Anúncio', stepType: 'Anúncio' as FunnelStepType, visitors: 5000, conversions: 400 } },
-  { label: 'Landing Page', icon: FileText, color: 'text-sky-500', data: { label: 'Landing Page', stepType: 'Landing Page' as FunnelStepType, visitors: 400, conversions: 120 } },
-  { label: 'Formulário', icon: ClipboardList, color: 'text-pink-500', data: { label: 'Formulário', stepType: 'Formulário' as FunnelStepType, visitors: 120, conversions: 60 } },
-  { label: 'Checkout', icon: ShoppingCart, color: 'text-amber-500', data: { label: 'Checkout', stepType: 'Checkout' as FunnelStepType, visitors: 60, conversions: 25 } },
-  { label: 'Confirmação', icon: CheckCircle, color: 'text-teal-500', data: { label: 'Confirmação', stepType: 'Confirmação' as FunnelStepType, visitors: 25, conversions: 25 } },
-  { label: 'Topo de Funil', icon: LayoutTemplate, color: 'text-blue-500', data: { label: 'Nova Etapa', stepType: 'Topo de Funil' as FunnelStepType, visitors: 0, conversions: 0 } },
+  { label: 'Anúncio', icon: Megaphone, color: 'text-orange-700 dark:text-orange-500', data: { label: 'Anúncio', stepType: 'Anúncio' as FunnelStepType, visitors: 5000, conversions: 400 } },
+  { label: 'Landing Page', icon: FileText, color: 'text-sky-700 dark:text-sky-500', data: { label: 'Landing Page', stepType: 'Landing Page' as FunnelStepType, visitors: 400, conversions: 120 } },
+  { label: 'Formulário', icon: ClipboardList, color: 'text-pink-700 dark:text-pink-500', data: { label: 'Formulário', stepType: 'Formulário' as FunnelStepType, visitors: 120, conversions: 60 } },
+  { label: 'Checkout', icon: ShoppingCart, color: 'text-amber-700 dark:text-amber-500', data: { label: 'Checkout', stepType: 'Checkout' as FunnelStepType, visitors: 60, conversions: 25 } },
+  { label: 'Confirmação', icon: CheckCircle, color: 'text-teal-700 dark:text-teal-500', data: { label: 'Confirmação', stepType: 'Confirmação' as FunnelStepType, visitors: 25, conversions: 25 } },
+  { label: 'Topo de Funil', icon: LayoutTemplate, color: 'text-blue-700 dark:text-blue-500', data: { label: 'Nova Etapa', stepType: 'Topo de Funil' as FunnelStepType, visitors: 0, conversions: 0 } },
 ];
 
 const getEdgeStyle = (currentTheme: string | undefined) => ({
@@ -272,9 +272,20 @@ function FunnelBuilderInner() {
       )}
 
       <header className="h-16 flex items-center justify-between px-6 z-50 bg-white/5 backdrop-blur-md border-b border-white/10 shrink-0">
-        <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">TWR — Criador de Funil</h1>
+        <div className="flex flex-col">
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight leading-none">TWR — Criador de Funil</h1>
+          <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em] mt-1">Desafio Técnico Frontend</span>
+        </div>
         <div className="flex items-center">
-          <div className="mr-[15px]"><Button onClick={handleAddFreeNode} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-5 h-9 font-semibold text-xs transition-all shadow-lg"><Plus size={14} className="mr-2" /> Nova Etapa</Button></div>
+          <div className="mr-[15px]">
+            <Button 
+              onClick={handleAddFreeNode} 
+              size="sm" 
+              className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6 h-10 font-bold text-[13px] transition-all shadow-lg flex items-center justify-center gap-2"
+            >
+              <Plus size={16} strokeWidth={3} /> Nova Etapa
+            </Button>
+          </div>
           <div className="flex items-center gap-3">
             <div className="w-px h-6 bg-slate-300 dark:bg-slate-700" />
             <button onClick={() => { if(confirm('Limpar funil?')){setNodes([]); setEdges([]);} }} className="w-9 h-9 flex items-center justify-center rounded-lg bg-white/10 hover:bg-red-500/10 text-slate-500 dark:text-slate-400 hover:text-red-500 transition-all border border-white/10 cursor-pointer"><Trash2 size={18} /></button>
@@ -287,13 +298,13 @@ function FunnelBuilderInner() {
       <div className="flex flex-1 relative overflow-hidden">
         <div className={`absolute top-0 left-0 h-full z-40 flex pointer-events-none transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-[170px]'}`}>
           <aside style={{ backgroundColor: currentTheme === 'dark' ? 'rgba(15, 23, 42, 0.08)' : 'rgba(255, 255, 255, 0.32)', backdropFilter: 'blur(6px)' }} className="w-[170px] h-full border-r border-slate-200 dark:border-slate-800 px-3 py-5 overflow-y-auto shadow-2xl pointer-events-auto">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-4 px-1">ADICIONAR ETAPAS</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-4 px-1">ADICIONAR ETAPAS</p>
             <div className="flex flex-col gap-[4px]">
               {PREDEFINED_STEPS.map((step) => (
                 <button key={step.label} onClick={() => handleSidebarStep(step)} className="group w-full h-10 flex items-center px-3 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-all text-left border-none cursor-pointer">
-                  <div className={`w-5 flex items-center justify-center mr-3 ${step.color}`}><step.icon size={16} /></div>
-                  <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-200 flex-1">{step.label}</span>
-                  <Plus size={14} className="opacity-0 group-hover:opacity-100 text-blue-500 transition-opacity" />
+                  <div className={`w-5 flex items-center justify-center mr-3 ${step.color}`}><step.icon size={16} strokeWidth={2.5} /></div>
+                  <span className="text-[13px] font-bold text-slate-800 dark:text-slate-200 flex-1">{step.label}</span>
+                  <Plus size={14} className="opacity-0 group-hover:opacity-100 text-blue-600 transition-opacity" strokeWidth={2.5} />
                 </button>
               ))}
             </div>
@@ -320,13 +331,23 @@ function FunnelBuilderInner() {
             <Controls position="bottom-left" showInteractive={false} className="!mb-4 !ml-4" />
 
             <MiniMap 
+              position="top-right"
               nodeColor="#3b82f6" 
               maskColor="rgba(0,0,0,0.1)" 
-              className="dark:bg-slate-900"
+              className="dark:bg-slate-900 !mt-2 !mr-2"
               pannable 
               zoomable
             />
           </ReactFlow>
+
+          <div className="absolute bottom-4 right-4 z-50 pointer-events-none opacity-40 hover:opacity-100 transition-opacity flex flex-col items-end">
+            <p className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">
+              Luis Frantz Granado Junior
+            </p>
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-500 mt-0.5">
+              Frontend Engineer • Juiz de Fora, MG
+            </p>
+          </div>
         </div>
       </div>
     </div>
