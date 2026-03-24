@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from './ThemeToggle';
+import { useTheme } from 'next-themes';
 import {
   ReactFlow, Background, Controls, MiniMap,
   applyNodeChanges, applyEdgeChanges, addEdge,
@@ -28,12 +29,12 @@ type PredefinedStep = {
 };
 
 const PREDEFINED_STEPS: PredefinedStep[] = [
-  { label: 'Anúncio', icon: Megaphone, color: 'text-orange-400', bg: 'bg-orange-950/40 dark:hover:bg-orange-900/60 hover:bg-orange-100', border: 'border-orange-800/50', dot: 'bg-orange-400', data: { label: 'Anúncio', stepType: 'Anúncio', visitors: 5000, conversions: 400 } },
-  { label: 'Landing Page', icon: FileText, color: 'text-sky-400', bg: 'bg-sky-950/40 dark:hover:bg-sky-900/60 hover:bg-sky-100', border: 'border-sky-800/50', dot: 'bg-sky-400', data: { label: 'Landing Page', stepType: 'Landing Page', visitors: 400, conversions: 120 } },
-  { label: 'Formulário', icon: ClipboardList, color: 'text-pink-400', bg: 'bg-pink-950/40 dark:hover:bg-pink-900/60 hover:bg-pink-100', border: 'border-pink-800/50', dot: 'bg-pink-400', data: { label: 'Formulário', stepType: 'Formulário', visitors: 120, conversions: 60 } },
-  { label: 'Checkout', icon: ShoppingCart, color: 'text-amber-400', bg: 'bg-amber-950/40 dark:hover:bg-amber-900/60 hover:bg-amber-100', border: 'border-amber-800/50', dot: 'bg-amber-400', data: { label: 'Checkout', stepType: 'Checkout', visitors: 60, conversions: 25 } },
-  { label: 'Confirmação', icon: CheckCircle, color: 'text-teal-400', bg: 'bg-teal-950/40 dark:hover:bg-teal-900/60 hover:bg-teal-100', border: 'border-teal-800/50', dot: 'bg-teal-400', data: { label: 'Confirmação', stepType: 'Confirmação', visitors: 25, conversions: 25 } },
-  { label: 'Topo de Funil', icon: LayoutTemplate, color: 'text-blue-400', bg: 'bg-blue-950/40 dark:hover:bg-blue-900/60 hover:bg-blue-100', border: 'border-blue-800/50', dot: 'bg-blue-400', data: { label: 'Nova Etapa', stepType: 'Topo de Funil', visitors: 0, conversions: 0 } },
+  { label: 'Anúncio', icon: Megaphone, color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-950/40 hover:bg-orange-100', border: 'border-orange-200 dark:border-orange-800/50', dot: 'bg-orange-400', data: { label: 'Anúncio', stepType: 'Anúncio', visitors: 5000, conversions: 400 } },
+  { label: 'Landing Page', icon: FileText, color: 'text-sky-600 dark:text-sky-400', bg: 'bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/60', border: 'border-sky-200 dark:border-sky-800/50', dot: 'bg-sky-400', data: { label: 'Landing Page', stepType: 'Landing Page', visitors: 400, conversions: 120 } },
+  { label: 'Formulário', icon: ClipboardList, color: 'text-pink-600 dark:text-pink-400', bg: 'bg-pink-50 dark:bg-pink-950/40 hover:bg-pink-100 dark:hover:bg-pink-900/60', border: 'border-pink-200 dark:border-pink-800/50', dot: 'bg-pink-400', data: { label: 'Formulário', stepType: 'Formulário', visitors: 120, conversions: 60 } },
+  { label: 'Checkout', icon: ShoppingCart, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60', border: 'border-amber-200 dark:border-amber-800/50', dot: 'bg-amber-400', data: { label: 'Checkout', stepType: 'Checkout', visitors: 60, conversions: 25 } },
+  { label: 'Confirmação', icon: CheckCircle, color: 'text-teal-600 dark:text-teal-400', bg: 'bg-teal-50 dark:bg-teal-950/40 hover:bg-teal-100 dark:hover:bg-teal-900/60', border: 'border-teal-200 dark:border-teal-800/50', dot: 'bg-teal-400', data: { label: 'Confirmação', stepType: 'Confirmação', visitors: 25, conversions: 25 } },
+  { label: 'Topo de Funil', icon: LayoutTemplate, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/60', border: 'border-blue-200 dark:border-blue-800/50', dot: 'bg-blue-400', data: { label: 'Nova Etapa', stepType: 'Topo de Funil', visitors: 0, conversions: 0 } },
 ];
 
 const defaultNodes: FunnelNodeType[] = [
@@ -42,6 +43,9 @@ const defaultNodes: FunnelNodeType[] = [
 const defaultEdges: Edge[] = [];
 
 function FunnelBuilderInner() {
+  const { theme, systemTheme } = useTheme();
+  const currentTheme = theme === "system" ? systemTheme : theme;
+
   const [nodes, setNodes] = useState<FunnelNodeType[]>(defaultNodes);
   const [edges, setEdges] = useState<Edge[]>(defaultEdges);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -82,8 +86,12 @@ function FunnelBuilderInner() {
   );
   
   const onConnect: OnConnect = useCallback(params => {
-    setEdges(eds => addEdge({ ...params, animated: true }, eds));
-  }, []);
+    setEdges(eds => addEdge({ 
+      ...params, 
+      animated: true, 
+      style: { stroke: currentTheme === 'dark' ? '#475569' : '#334155', strokeWidth: 2 } 
+    }, eds));
+  }, [currentTheme]);
 
   const onConnectStart: OnConnectStart = useCallback((_, params) => {
     connectingNodeId.current = params.nodeId;
@@ -127,8 +135,14 @@ function FunnelBuilderInner() {
     };
     
     setNodes(nds => nds.concat(newNode));
-    setEdges(eds => eds.concat({ id: uuidv4(), source: handleType === 'target' ? newNodeId : originNodeId, target: handleType === 'target' ? originNodeId : newNodeId, animated: true }));
-  }, [screenToFlowPosition, getNode]);
+    setEdges(eds => eds.concat({ 
+      id: uuidv4(), 
+      source: handleType === 'target' ? newNodeId : originNodeId, 
+      target: handleType === 'target' ? originNodeId : newNodeId, 
+      animated: true,
+      style: { stroke: currentTheme === 'dark' ? '#475569' : '#334155', strokeWidth: 2 }
+    }));
+  }, [screenToFlowPosition, getNode, currentTheme]);
 
   const onNodeDragStop = useCallback((_: React.MouseEvent, draggedNode: FunnelNodeType) => {
     setNodes(nds => {
@@ -154,14 +168,11 @@ function FunnelBuilderInner() {
           const sourceNode = nds.find(n => n.id === e.source);
           const targetNode = nds.find(n => n.id === e.target);
           if (!sourceNode || !targetNode) return false;
-
           const nodeY = draggedNode.position.y;
           const nodeX = draggedNode.position.x;
-
           const isBetweenY = nodeY > sourceNode.position.y && nodeY < targetNode.position.y;
           const midX = (sourceNode.position.x + targetNode.position.x) / 2;
           const isAlignedX = Math.abs(nodeX - midX) <= 120;
-
           return isBetweenY && isAlignedX;
         });
 
@@ -171,33 +182,46 @@ function FunnelBuilderInner() {
           if (sourceNode && targetNode) {
             finalX = sourceNode.position.x; 
             finalY = sourceNode.position.y + 240; 
-
             const expectedTargetY = finalY + 240; 
             if (targetNode.position.y < expectedTargetY) {
                shiftY = expectedTargetY - targetNode.position.y;
                shiftFromY = targetNode.position.y;
             }
           }
-          
           setEdges(eds => [
             ...eds.filter(e => e.id !== edgeToSplit.id),
-            { id: uuidv4(), source: edgeToSplit.source, target: draggedNode.id, animated: true },
-            { id: uuidv4(), source: draggedNode.id, target: edgeToSplit.target, animated: true }
+            { id: uuidv4(), source: edgeToSplit.source, target: draggedNode.id, animated: true, style: { stroke: currentTheme === 'dark' ? '#475569' : '#334155', strokeWidth: 2 } },
+            { id: uuidv4(), source: draggedNode.id, target: edgeToSplit.target, animated: true, style: { stroke: currentTheme === 'dark' ? '#475569' : '#334155', strokeWidth: 2 } }
           ]);
         }
       }
 
+      let hasOverlap = true;
+      let escapeHatch = 0; 
+      while (hasOverlap && escapeHatch < 10) {
+        hasOverlap = false;
+        for (const other of nds) {
+          if (other.id === draggedNode.id) continue;
+          const rect1 = { x: finalX, y: finalY, w: 280, h: 180 };
+          const rect2 = { x: other.position.x, y: other.position.y, w: 280, h: 180 };
+          const expanded = { x: rect2.x - 40, y: rect2.y - 40, w: rect2.w + 80, h: rect2.h + 80 };
+          const isOverlapping = rect1.x < expanded.x + expanded.w && rect1.x + rect1.w > expanded.x && rect1.y < expanded.y + expanded.h && rect1.y + rect1.h > expanded.y;
+          if (isOverlapping) {
+            hasOverlap = true;
+            const dy = finalY - other.position.y;
+            finalY = dy >= 0 ? other.position.y + 220 : other.position.y - 220;
+          }
+        }
+        escapeHatch++;
+      }
+
       return nds.map(n => {
-        if (n.id === draggedNode.id) {
-          return { ...n, position: { x: finalX, y: finalY } };
-        }
-        if (shiftY > 0 && n.position.y >= shiftFromY && n.id !== draggedNode.id) {
-          return { ...n, position: { x: n.position.x, y: n.position.y + shiftY } };
-        }
+        if (n.id === draggedNode.id) return { ...n, position: { x: finalX, y: finalY } };
+        if (shiftY > 0 && n.position.y >= shiftFromY && n.id !== draggedNode.id) return { ...n, position: { x: n.position.x, y: n.position.y + shiftY } };
         return n;
       });
     });
-  }, [edges]);
+  }, [edges, currentTheme]);
 
   const handleSidebarStep = useCallback((step: PredefinedStep) => {
     setNodes(currentNodes => {
@@ -206,42 +230,27 @@ function FunnelBuilderInner() {
         setTimeout(() => setCenter(existing.position.x + 140, existing.position.y + 90, { zoom: 1.15, duration: 800 }), 30);
         return currentNodes.map(n => ({ ...n, selected: n.id === existing.id })) as FunnelNodeType[];
       }
-
       const lowestNode = currentNodes.length > 0 ? currentNodes.reduce((lowest, node) => node.position.y > lowest.position.y ? node : lowest, currentNodes[0]) : null;
-
-      let newX = 240;
-      let newY = 100;
-
+      let newX = 240; let newY = 100;
       if (lowestNode) {
         newX = lowestNode.position.x;
         newY = lowestNode.position.y + 240; 
       } else if (rfInstance.current) {
         const pos = screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
-        newX = Math.round(pos.x / 20) * 20; 
-        newY = Math.round(pos.y / 20) * 20;
+        newX = Math.round(pos.x / 20) * 20; newY = Math.round(pos.y / 20) * 20;
       }
-
       const newNodeId = uuidv4();
       const newNode: FunnelNodeType = { id: newNodeId, type: 'customFunnelNode', position: { x: newX, y: newY }, selected: true, data: { ...step.data } };
-      
-      if (lowestNode) {
-        setEdges(eds => [...eds, { id: uuidv4(), source: lowestNode.id, target: newNodeId, animated: true }]);
-      }
-
+      if (lowestNode) setEdges(eds => [...eds, { id: uuidv4(), source: lowestNode.id, target: newNodeId, animated: true, style: { stroke: currentTheme === 'dark' ? '#475569' : '#334155', strokeWidth: 2 } }]);
       setTimeout(() => setCenter(newX + 140, newY + 90, { zoom: 1, duration: 800 }), 50);
       return [...(currentNodes.map(n => ({ ...n, selected: false })) as FunnelNodeType[]), newNode];
     });
-  }, [screenToFlowPosition, setCenter]);
+  }, [screenToFlowPosition, setCenter, currentTheme]);
 
   const handleAddFreeNode = () => {
     const pos = rfInstance.current ? screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 }) : { x: 240, y: 100 };
-    pos.x = Math.round(pos.x / 20) * 20;
-    pos.y = Math.round(pos.y / 20) * 20;
-
-    const newNode: FunnelNodeType = {
-      id: uuidv4(), type: 'customFunnelNode', position: pos,
-      data: { label: 'Etapa Solta', stepType: 'Topo de Funil', visitors: 0, conversions: 0 },
-    };
+    pos.x = Math.round(pos.x / 20) * 20; pos.y = Math.round(pos.y / 20) * 20;
+    const newNode: FunnelNodeType = { id: uuidv4(), type: 'customFunnelNode', position: pos, data: { label: 'Etapa Solta', stepType: 'Topo de Funil', visitors: 0, conversions: 0 } };
     setNodes(nds => [...nds, newNode]);
     setTimeout(() => setCenter(pos.x + 140, pos.y + 90, { zoom: 1, duration: 800 }), 50);
   };
@@ -251,60 +260,86 @@ function FunnelBuilderInner() {
   if (!mounted) return <div className="w-full h-screen bg-slate-50 dark:bg-slate-950" />;
 
   return (
-    <div className="w-full h-screen flex flex-col bg-slate-50 dark:bg-slate-950 font-sans overflow-hidden">
+    <div 
+      className="w-full h-screen flex flex-col font-sans overflow-hidden transition-colors duration-500"
+      style={{
+        background: currentTheme === 'dark' 
+          ? 'linear-gradient(to bottom right, #000000, #0a192f)' 
+          : 'linear-gradient(to bottom right, #e2e8f0, #94a3b8)'
+      }}
+    >
       <style dangerouslySetInnerHTML={{ __html: `
         .react-flow__node:not(.dragging) { transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .react-flow__controls-button {
+          background-color: ${currentTheme === 'dark' ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.95)'} !important;
+          border-bottom: 1px solid rgba(0,0,0,0.1) !important;
+          fill: ${currentTheme === 'dark' ? '#f8fafc' : '#1e293b'} !important;
+          backdrop-filter: blur(4px);
+        }
+        .react-flow__edge-path {
+          stroke: ${currentTheme === 'dark' ? '#475569' : '#334155'} !important;
+          stroke-width: 2px !important;
+        }
       `}} />
 
-      <header className="h-16 bg-[rgba(255,255,255,0.8)] dark:bg-[rgba(15,23,42,0.8)] backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 shadow-sm z-50 shrink-0 transition-colors duration-300">
+      <header className="h-16 bg-white/40 dark:bg-slate-950/40 backdrop-blur-md border-b border-slate-300 dark:border-slate-800 flex items-center justify-between px-6 shadow-sm z-50 shrink-0 transition-colors duration-300">
         <div className="flex items-center gap-3">
-          <h1 className="text-lg font-bold text-slate-800 dark:text-slate-100 tracking-tight">TWR — Criador de Funil</h1>
-          {savedIndicator && <span className="text-xs text-emerald-500 dark:text-emerald-400 font-medium animate-pulse">Salvo ✓</span>}
+          <h1 className="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight">TWR — Criador de Funil</h1>
+          {savedIndicator && <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium animate-pulse">Salvo ✓</span>}
         </div>
         <div className="flex items-center gap-3">
           <Button onClick={handleAddFreeNode} size="sm" className="gap-2 rounded-full cursor-pointer dark:bg-blue-600 dark:hover:bg-blue-700 shadow-sm">
             <Plus size={14} /> Nova Etapa
           </Button>
-          <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1" />
+          <div className="w-px h-6 bg-slate-300 dark:bg-slate-700 mx-1" />
           <button onClick={clearCanvas} title="Limpar canvas" className="w-9 h-9 flex items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-all cursor-pointer">
             <Trash2 size={18} />
           </button>
-          <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1" />
+          <div className="w-px h-6 bg-slate-300 dark:bg-slate-700 mx-1" />
           <ThemeToggle />
         </div>
       </header>
 
       <div className="flex flex-1 relative w-full h-full overflow-hidden">
-        
-        {/* LARGURA REDUZIDA PARA 240px */}
         <div 
-          className={`absolute top-0 left-0 h-full z-40 flex transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-[240px]'}`}
+          className="absolute top-0 left-0 h-full z-40 flex transition-transform duration-300 ease-in-out shadow-2xl"
+          style={{ transform: sidebarOpen ? 'translateX(0px)' : 'translateX(-170px)' }}
         >
-          <aside className="w-[240px] h-full bg-[rgba(255,255,255,0.7)] dark:bg-[rgba(15,23,42,0.7)] backdrop-blur-2xl border-r border-slate-200 dark:border-slate-800 p-4 overflow-y-auto shadow-2xl">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3 px-1 whitespace-nowrap">Etapas Rápidas</p>
-            {/* GAP-2 APLICADO PARA DAR ESPAÇAMENTO VERTICAL ENTRE OS BOTÕES */}
+          {/* BARRA LATERAL SINCRONIZADA COM A COR DOS CARDS */}
+          <aside 
+            style={{
+               backgroundColor: currentTheme === 'dark' ? 'rgba(15, 23, 42, 0.2)' : 'rgba(255, 255, 255, 0.65)',
+               backdropFilter: 'blur(6px)',
+               WebkitBackdropFilter: 'blur(6px)'
+            }}
+            className="w-[170px] h-full border-r border-slate-300 dark:border-slate-800 px-3 py-5 overflow-y-auto"
+          >
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3 px-1 whitespace-nowrap">Etapas</p>
             <div className="flex flex-col gap-2">
               {PREDEFINED_STEPS.map((step) => {
                 const Icon = step.icon;
                 return (
                   <button
                     key={step.label} onClick={() => handleSidebarStep(step)}
-                    className={`group relative w-full flex items-center px-3 py-3 rounded-lg border text-left transition-all duration-150 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap cursor-pointer ${step.bg} ${step.border}`}
+                    className={`group relative w-full flex items-center gap-2 px-2 py-2.5 rounded-lg border text-left transition-all duration-150 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap cursor-pointer ${step.bg} ${step.border}`}
                   >
-                    <Icon size={16} className={`shrink-0 mr-3 ${step.color}`} />
-                    <span className={`text-[13px] font-semibold ${step.color}`}>{step.label}</span>
-                    {/* ml-auto GARANTE QUE O + VÁ PARA O EXTREMO DIREITO SEM SOBREPOR */}
-                    <Plus size={15} className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity text-blue-500 dark:text-blue-400" />
+                    <Icon size={14} className={`shrink-0 ${step.color}`} />
+                    <span className={`text-xs font-semibold ${step.color}`}>{step.label}</span>
+                    <Plus size={14} className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity text-blue-600 dark:text-blue-400" />
                   </button>
                 );
               })}
             </div>
           </aside>
-
           <div className="relative h-full pt-6">
             <button
               onClick={() => setSidebarOpen(o => !o)}
-              className="absolute top-6 left-0 w-10 h-12 flex items-center justify-center bg-[rgba(255,255,255,0.9)] dark:bg-[rgba(15,23,42,0.9)] backdrop-blur-2xl border-y border-r border-slate-200 dark:border-slate-800 rounded-r-lg shadow-md text-slate-500 hover:text-blue-500 transition-colors cursor-pointer"
+              style={{
+                 backgroundColor: currentTheme === 'dark' ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.95)',
+                 backdropFilter: 'blur(4px)',
+                 WebkitBackdropFilter: 'blur(4px)'
+              }}
+              className="absolute top-6 -right-9 w-9 h-12 flex items-center justify-center border border-slate-300 dark:border-slate-800 rounded-r-lg shadow-md text-slate-600 dark:text-blue-400 transition-colors cursor-pointer"
               title={sidebarOpen ? 'Recolher menu' : 'Expandir menu'}
             >
               {sidebarOpen ? <ChevronLeft size={18} /> : <Menu size={18} />}
@@ -312,8 +347,10 @@ function FunnelBuilderInner() {
           </div>
         </div>
 
-        {/* AJUSTE PARA EMPURRAR O MAPA COM A NOVA LARGURA DE 240px */}
-        <div className={`flex-1 h-full w-full transition-all duration-300 ease-in-out ${sidebarOpen ? 'ml-[240px]' : 'ml-0'}`}>
+        <div 
+          className="flex-1 h-full w-full transition-[margin] duration-300 ease-in-out"
+          style={{ marginLeft: sidebarOpen ? '170px' : '0px' }}
+        >
           <ReactFlow
             nodes={nodes} edges={edges}
             onNodesChange={onNodesChange as OnNodesChange} onEdgesChange={onEdgesChange}
@@ -326,8 +363,13 @@ function FunnelBuilderInner() {
             deleteKeyCode={['Backspace', 'Delete']}
             snapToGrid={true} snapGrid={[20, 20]}
           >
-            <Background color="#94a3b8" gap={20} size={1} style={{ opacity: 0.45 }} />
-            <Controls className="[&_.react-flow__controls-button]:!bg-white dark:[&_.react-flow__controls-button]:!bg-slate-900 [&_.react-flow__controls-button]:!border-slate-200 dark:[&_.react-flow__controls-button]:!border-slate-800 [&_.react-flow__controls-button_svg]:!fill-slate-600 dark:[&_.react-flow__controls-button_svg]:!fill-blue-400" />            
+            <Background 
+              color={currentTheme === 'dark' ? '#475569' : '#1e293b'} 
+              gap={20} 
+              size={1.5} 
+              style={{ opacity: currentTheme === 'dark' ? 0.6 : 0.8 }} 
+            />
+            <Controls position="bottom-left" showInteractive={false} />            
             <MiniMap zoomable pannable nodeColor="#64748b" maskColor="rgba(2,6,23,0.65)" style={{ backgroundColor: 'rgb(15 23 42)', border: '1px solid rgb(51 65 85)', borderRadius: 12 }} />
           </ReactFlow>
         </div>
