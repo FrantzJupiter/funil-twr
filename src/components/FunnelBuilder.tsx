@@ -77,9 +77,12 @@ function FunnelBuilderInner() {
   
   const onConnect = useCallback((params: Connection) => {
     setEdges(eds => {
-      const exists = eds.some(e => e.source === params.source && e.target === params.target);
-      if (exists) return eds;
-      return addEdge(createEdge(params.source, params.target, currentTheme), eds);
+      const isDuplicate = eds.some(e => 
+        (e.source === params.source && e.target === params.target) ||
+        (e.source === params.target && e.target === params.source)
+      );
+      if (isDuplicate || params.source === params.target) return eds;
+      return addEdge(createEdge(params.source!, params.target!, currentTheme), eds);
     });
   }, [currentTheme]);
 
@@ -90,7 +93,6 @@ function FunnelBuilderInner() {
         const id = uuidv4();
         const { clientX, clientY } = 'changedTouches' in event ? event.changedTouches[0] : event;
         const pos = screenToFlowPosition({ x: clientX, y: clientY });
-        
         const newNode: FunnelNodeType = {
           id,
           type: 'customFunnelNode',
@@ -101,21 +103,18 @@ function FunnelBuilderInner() {
           data: { label: 'Nova Etapa', stepType: 'Topo de Funil', visitors: 0, conversions: 0 },
           selected: true
         };
-
         setNodes(nds => [...nds.map(n => ({ ...n, selected: false })), newNode]);
-        
         const isTarget = connectionState.fromHandle?.type === 'target';
-        const sourceNodeId = isTarget ? id : fromId;
-        const targetNodeId = isTarget ? fromId : id;
-
-        setEdges(eds => [...eds, createEdge(sourceNodeId, targetNodeId, currentTheme)]);
+        const sourceId = isTarget ? id : fromId;
+        const targetId = isTarget ? fromId : id;
+        setEdges(eds => [...eds, createEdge(sourceId, targetId, currentTheme)]);
       }
     }
-  }, [screenToFlowPosition, currentTheme, setNodes, setEdges]);
+  }, [screenToFlowPosition, currentTheme]);
 
   const onEdgeContextMenu = useCallback((event: React.MouseEvent, edge: Edge) => {
     event.preventDefault();
-    setEdges((eds) => eds.filter((e) => e.source !== edge.source || e.target !== edge.target));
+    setEdges((eds) => eds.filter((e) => e.id !== edge.id));
     setHoveredEdge(null);
   }, []);
 
@@ -152,7 +151,7 @@ function FunnelBuilderInner() {
         const diff = expectedTargetY - target.position.y;
 
         setEdges(eds => [
-          ...eds.filter(e => e.id !== edgeToSplit.id),
+          ...eds.filter(e => e.id !== edgeToSplit.id && e.source !== draggedNode.id && e.target !== draggedNode.id),
           createEdge(edgeToSplit.source, draggedNode.id, currentTheme),
           createEdge(draggedNode.id, edgeToSplit.target, currentTheme)
         ]);
@@ -164,17 +163,6 @@ function FunnelBuilderInner() {
         });
       }
     }
-
-    let snapped = false;
-    const connectedEdges = currentEdges.filter(e => e.source === draggedNode.id || e.target === draggedNode.id);
-    connectedEdges.forEach(edge => {
-      const otherId = edge.source === draggedNode.id ? edge.target : edge.source;
-      const otherNode = currentNodes.find(n => n.id === otherId);
-      if (otherNode && Math.abs(finalX - otherNode.position.x) <= FUNNEL_METRICS.SNAP_TOLERANCE_X) {
-        finalX = otherNode.position.x; 
-        snapped = true;
-      }
-    });
 
     let safety = 0;
     let hasOverlap = true;
@@ -193,8 +181,13 @@ function FunnelBuilderInner() {
   }, [currentTheme]);
 
   const onNodeDragStop = useCallback((_: any, node: Node) => {
-    setNodes(nds => processInsertion(node, nds, edges));
-  }, [edges, processInsertion]);
+    setNodes(nds => {
+      const selectedCount = nds.filter(n => n.selected).length;
+      if (selectedCount > 1) return nds;
+      
+      return processInsertion(node, nds, edges);
+    });
+  }, [edges, processInsertion, setNodes]);
 
   const handleSidebarStep = useCallback((step: typeof PREDEFINED_STEPS[0]) => {
     const newNodeId = uuidv4();
@@ -230,25 +223,32 @@ function FunnelBuilderInner() {
 
   return (
     <div className="fixed inset-0 w-screen h-screen flex flex-col font-sans overflow-hidden transition-colors duration-500" style={{ background: currentTheme === 'dark' ? 'linear-gradient(to bottom right, #000000, #0a192f)' : 'linear-gradient(to bottom right, #e2e8f0, #94a3b8)', zIndex: 0 }}>
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style>{`
         .react-flow__node:not(.dragging) { transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .react-flow__controls { z-index: 9999 !important; pointer-events: auto !important; }
+        .react-flow__edge-path { transition: d 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        
         .react-flow__controls-button {
           background-color: ${currentTheme === 'dark' ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.95)'} !important;
           border: 1px solid ${currentTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} !important;
-          backdrop-filter: blur(4px); cursor: pointer !important; pointer-events: auto !important;
-          display: flex !important; align-items: center !important; justify-content: center !important;
-          width: 32px !important; height: 32px !important;
         }
-        .react-flow__controls-button svg, .react-flow__controls-button path {
-          fill: ${currentTheme === 'dark' ? '#f8fafc' : '#1e293b'} !important; pointer-events: none !important;
+        .react-flow__controls-button svg { fill: ${currentTheme === 'dark' ? '#f8fafc' : '#1e293b'} !important; }
+        .react-flow__edge:hover .react-flow__edge-path {
+          stroke: #ef4444 !important;
+          stroke-width: 4px !important;
+          cursor: pointer !important;
         }
-        .react-flow__edge-path { stroke: ${currentTheme === 'dark' ? '#94a3b8' : '#334155'} !important; stroke-width: 2.5px !important; }
-      `}} />
+        .react-flow__selectionpane {
+          background: rgba(59, 130, 246, 0.1) !important;
+          border: 1px solid rgba(59, 130, 246, 0.5) !important;
+        }
+      `}</style>
 
       {hoveredEdge && (
-        <div className="fixed z-[9999] pointer-events-none px-2 py-1 bg-slate-900/90 text-white text-[10px] font-bold rounded shadow-xl backdrop-blur-sm border border-white/10" style={{ left: hoveredEdge.x + 15, top: hoveredEdge.y - 10 }}>
-          Botão direito para apagar
+        <div 
+          className="fixed z-[9999] pointer-events-none px-2.5 py-1.5 bg-slate-900/95 dark:bg-white/95 text-white dark:text-slate-900 text-[11px] font-bold rounded shadow-xl backdrop-blur-sm transition-opacity"
+          style={{ left: hoveredEdge.x + 15, top: hoveredEdge.y - 15 }}
+        >
+          Clique com o botão direito para excluir linha
         </div>
       )}
 
@@ -259,11 +259,7 @@ function FunnelBuilderInner() {
         </div>
         <div className="flex items-center">
           <div className="mr-[15px]">
-            <Button 
-              onClick={handleAddFreeNode} 
-              size="sm" 
-              className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6 h-10 font-bold text-[13px] transition-all shadow-lg flex items-center justify-center gap-2"
-            >
+            <Button onClick={handleAddFreeNode} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6 h-10 font-bold text-[13px] transition-all shadow-lg flex items-center justify-center gap-2">
               <Plus size={16} strokeWidth={3} /> Nova Etapa
             </Button>
           </div>
@@ -291,7 +287,7 @@ function FunnelBuilderInner() {
             </div>
           </aside>
           <div className="pt-6 ml-[-1px] pointer-events-auto">
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ backgroundColor: currentTheme === 'dark' ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(4px)' }} className="w-8 h-10 flex items-center justify-center border border-slate-300 dark:border-slate-800 rounded-r-lg shadow-md text-slate-600 dark:text-blue-400 transition-all cursor-pointer">
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ backgroundColor: currentTheme === 'dark' ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.95)' }} className="w-8 h-10 flex items-center justify-center border border-slate-300 dark:border-slate-800 rounded-r-lg shadow-md text-slate-600 dark:text-blue-400 transition-all cursor-pointer">
               <ChevronLeft size={16} className={`transition-transform duration-300 ${sidebarOpen ? '' : 'rotate-180'}`} />
             </button>
           </div>
@@ -306,16 +302,13 @@ function FunnelBuilderInner() {
             snapToGrid snapGrid={[FUNNEL_METRICS.GRID_SNAP, FUNNEL_METRICS.GRID_SNAP]} fitView
             proOptions={{ hideAttribution: true }}
             connectionRadius={80}
+            panOnDrag={[1, 2]}
+            selectionOnDrag={false} 
           >
             <Background color={currentTheme === 'dark' ? '#94a3b8' : '#334155'} gap={FUNNEL_METRICS.GRID_SNAP} size={1} style={{ opacity: 0.35 }} />
             <Controls position="bottom-left" showInteractive={false} className="!mb-4 !ml-4" />
-            <MiniMap 
-              position="top-right"
-              nodeColor="#3b82f6" maskColor="rgba(0,0,0,0.1)" className="dark:bg-slate-900 !mt-2 !mr-2"
-              pannable zoomable
-            />
+            <MiniMap position="top-right" nodeColor="#3b82f6" maskColor="rgba(0,0,0,0.1)" className="dark:bg-slate-900 !mt-2 !mr-2" pannable zoomable />
           </ReactFlow>
-
           <div className="absolute bottom-4 right-4 z-50 pointer-events-none opacity-40 hover:opacity-100 transition-opacity flex flex-col items-end">
             <p className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">Luis Frantz Granado Junior</p>
             <p className="text-[11px] font-bold text-slate-500 dark:text-slate-500 mt-0.5">Frontend Engineer • Juiz de Fora, MG</p>
