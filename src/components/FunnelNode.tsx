@@ -28,7 +28,7 @@ function NumericInput({ value, onChange, max }: { value: number; onChange: (v: n
         ref={inputRef} type="text" inputMode="numeric" value={draft}
         onChange={e => setDraft(e.target.value)} onBlur={commit}
         onKeyDown={e => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') setEditing(false); }}
-        className="w-16 bg-white border border-blue-400 rounded px-1 text-right outline-none text-xs font-bold text-slate-800 dark:text-white"
+        className="w-16 bg-slate-100 dark:bg-slate-800 border border-blue-500 dark:border-blue-400 rounded px-1 text-right outline-none text-xs font-bold text-slate-900 dark:text-white"
       />
     );
   }
