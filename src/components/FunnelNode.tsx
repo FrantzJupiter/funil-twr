@@ -7,7 +7,7 @@ import { useTheme } from 'next-themes';
 import { FunnelNodeType } from '@/types/funnel';
 import { FUNNEL_METRICS } from '@/lib/constants';
 
-function NumericInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+function NumericInput({ value, onChange, max }: { value: number; onChange: (v: number) => void; max?: number }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(String(value));
   const inputRef = useRef<HTMLInputElement>(null);
@@ -15,8 +15,10 @@ function NumericInput({ value, onChange }: { value: number; onChange: (v: number
   useEffect(() => { if (editing) inputRef.current?.select(); }, [editing]);
 
   const commit = () => {
-    const parsed = parseInt(draft.replace(/\D/g, ''), 10);
-    onChange(isNaN(parsed) ? 0 : parsed);
+    let parsed = parseInt(draft.replace(/\D/g, ''), 10);
+    if (isNaN(parsed)) parsed = 0;
+    if (max !== undefined && parsed > max) parsed = max;
+    onChange(parsed);
     setEditing(false);
   };
 
@@ -48,7 +50,8 @@ export default function FunnelNode({ id, data, selected }: NodeProps<FunnelNodeT
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const conversionRate = data.visitors > 0 ? ((data.conversions / data.visitors) * 100).toFixed(1) : '0.0';
+  const cappedConversions = Math.min(data.conversions, data.visitors);
+  const conversionRate = data.visitors > 0 ? ((cappedConversions / data.visitors) * 100).toFixed(1) : '0.0';
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -94,13 +97,26 @@ export default function FunnelNode({ id, data, selected }: NodeProps<FunnelNodeT
       >
         <div className="flex items-center justify-between mb-4" ref={dropdownRef}>
           <div className="relative">
-            <button onClick={() => setDropdownOpen(o => !o)} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-none cursor-pointer">
+            <button 
+              onClick={() => setDropdownOpen(o => !o)} 
+              aria-expanded={dropdownOpen}
+              aria-haspopup="listbox"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-none cursor-pointer"
+            >
               {data.stepType} <ChevronDown size={10} />
             </button>
             {dropdownOpen && (
-              <div className="absolute top-full mt-2 left-0 z-[9999] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-2xl py-1 min-w-[160px] backdrop-blur-xl">
+              <div 
+                role="listbox"
+                className="absolute top-full mt-2 left-0 z-[9999] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-2xl py-1 min-w-[160px] backdrop-blur-xl"
+              >
                 {['Topo de Funil', 'Meio de Funil', 'Fundo de Funil', 'Anúncio', 'Landing Page', 'Formulário', 'Checkout', 'Confirmação'].map(type => (
-                  <button key={type} onClick={() => { updateNodeData(id, { stepType: type }); setDropdownOpen(false); }} className="w-full text-left px-3 py-2 text-xs hover:bg-blue-50 dark:hover:bg-blue-900/30 text-slate-700 dark:text-slate-300 transition-colors">
+                  <button 
+                    key={type} 
+                    role="option"
+                    onClick={() => { updateNodeData(id, { stepType: type }); setDropdownOpen(false); }} 
+                    className="w-full text-left px-3 py-2 text-xs hover:bg-blue-50 dark:hover:bg-blue-900/30 text-slate-700 dark:text-slate-300 transition-colors"
+                  >
                     {type}
                   </button>
                 ))}
@@ -113,7 +129,8 @@ export default function FunnelNode({ id, data, selected }: NodeProps<FunnelNodeT
         </div>
 
         <input
-          value={data.label} onChange={e => updateNodeData(id, { label: e.target.value })}
+          value={data.label} 
+          onChange={e => updateNodeData(id, { label: e.target.value })}
           className="w-full text-base font-bold text-slate-900 dark:text-white bg-transparent border-none outline-none font-sans mb-auto"
         />
 
@@ -124,7 +141,7 @@ export default function FunnelNode({ id, data, selected }: NodeProps<FunnelNodeT
           </div>
           <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 font-semibold tracking-tight">
             <div className="flex items-center gap-2.5"><MousePointerClick size={14} /><span>Conversões</span></div>
-            <NumericInput value={data.conversions} onChange={v => updateNodeData(id, { conversions: v })} />
+            <NumericInput value={data.conversions} onChange={v => updateNodeData(id, { conversions: v })} max={data.visitors} />
           </div>
         </div>
       </div>

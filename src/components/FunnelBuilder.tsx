@@ -33,12 +33,17 @@ const PREDEFINED_STEPS = [
   { label: 'Topo de Funil', icon: LayoutTemplate, color: 'text-blue-500', data: { label: 'Nova Etapa', stepType: 'Topo de Funil' as FunnelStepType, visitors: 0, conversions: 0 } },
 ];
 
+const getEdgeStyle = (currentTheme: string | undefined) => ({
+  stroke: currentTheme === 'dark' ? '#94a3b8' : '#334155',
+  strokeWidth: 2.5
+});
+
 const createEdge = (source: string, target: string, currentTheme: string | undefined): Edge => ({
   id: uuidv4(),
   source,
   target,
   animated: true,
-  style: { stroke: currentTheme === 'dark' ? '#94a3b8' : '#334155', strokeWidth: 2.5 }
+  style: getEdgeStyle(currentTheme)
 });
 
 function FunnelBuilderInner() {
@@ -62,6 +67,10 @@ function FunnelBuilderInner() {
   }, []);
 
   useEffect(() => { if (mounted) saveFunnel(nodes, edges); }, [nodes, edges, mounted]);
+
+  useEffect(() => {
+    setEdges(eds => eds.map(e => ({ ...e, style: getEdgeStyle(currentTheme) })));
+  }, [currentTheme]);
 
   const onNodesChange: OnNodesChange<FunnelNodeType> = useCallback(cs => setNodes(nds => applyNodeChanges(cs, nds) as FunnelNodeType[]), []);
   const onEdgesChange: OnEdgesChange = useCallback(cs => setEdges(eds => applyEdgeChanges(cs, eds)), []);

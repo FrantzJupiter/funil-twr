@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🐇 TWR - Criador de Funil de Campanhas
 
-## Getting Started
+Um construtor visual interativo para funis de tráfego pago, desenvolvido como desafio técnico para a vaga de estágio em Frontend na The White Rabbit (TWR).
 
-First, run the development server:
+## 🚀 Demonstração
+**Acesse a aplicação aqui:** [Colocar link da Vercel <<<]
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+**Repositório:** [\[Link do GitHub\]](https://github.com/FrantzJupiter/funil-twr)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 💡 Sobre o Projeto e Minha Abordagem
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Olá, equipe da TWR! 
 
-## Learn More
+Aceitei este desafio com o objetivo de ir além do básico. Mais do que uma ferramenta de desenho, procurei construir uma **experiência de utilizador (UX)** que fosse fluida e uma **arquitetura de código** preparada para o mundo real.
 
-To learn more about Next.js, take a look at the following resources:
+### O que diferencia esta implementação:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+* **Física de Colisão e Inserção Inteligente:** Implementei um sistema matemático (`processInsertion`) que gere a sobreposição de etapas. Se soltar um card entre dois nós já conectados, o sistema abre espaço e ajusta o fluxo automaticamente para evitar desordem visual.
+* **Criação Magnética e Ágil:** Desenvolvi a função `onConnectEnd` que permite criar uma nova etapa apenas arrastando uma linha para um espaço vazio. Além disso, o `connectionRadius` de 80px funciona como um "íman", facilitando conexões rápidas sem exigir precisão cirúrgica.
+* **Integridade de Dados em Tempo Real:** A edição inline utiliza um componente `NumericInput` customizado que garante que as conversões nunca ultrapassem o número de visitantes, mantendo a integridade matemática da taxa de conversão (máximo 100%).
+* **Vanguarda Tecnológica:** Utilizei o **Tailwind CSS v4** e o **React Flow v12 (@xyflow/react)**, demonstrando proatividade em trabalhar com as versões mais recentes e performantes das ferramentas de mercado.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🛠️ Tecnologias Utilizadas
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+* **Framework:** Next.js 14 (App Router)
+* **Linguagem:** TypeScript 5
+* **Core do Funil:** @xyflow/react (React Flow)
+* **Estilização:** Tailwind CSS v4 (configuração via `@theme` no CSS)
+* **Componentes:** shadcn/ui + Radix UI
+* **Gestão de Temas:** next-themes (Dark/Light mode nativo)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## ✨ Funcionalidades Principais
+
+* **Drag & Drop:** Adição de etapas pré-configuradas (Anúncio, Landing Page, etc.) via sidebar lateral.
+* **Edição Inline:** Alteração de títulos e métricas diretamente no card.
+* **Persistência:** O funil é guardado automaticamente no `localStorage`, permitindo que o progresso não se perca ao recarregar a página.
+* **Interface Glassmorphism:** Design moderno com blur de fundo e transparências, totalmente responsivo aos modos claro e escuro.
+* **Navegação Avançada:** Minimapa interativo, pan e zoom para lidar com funis de grande escala.
+
+---
+
+## ⚙️ Como rodar o projeto localmente
+
+1.  **Clone o repositório:**
+    ```bash
+    git clone https://github.com/FrantzJupiter/funil-twr
+    ```
+2.  **Instale as dependências:**
+    ```bash
+    npm install
+    ```
+3.  **Inicie o servidor de desenvolvimento:**
+    ```bash
+    npm run dev
+    ```
+4.  **Aceda em:** `http://localhost:3000`
+
+---
+
+Este projeto foi desenvolvido com muita dedicação e respeito pelo processo da TWR. Acredito que o código reflete a minha paixão por resolver problemas complexos com soluções elegantes.
+
+Desenvolvido por **Luis Frantz Granado Junior** — Juiz de Fora, MG.
