@@ -3,9 +3,10 @@
 Um construtor visual interativo para funis de tráfego pago, desenvolvido como desafio técnico para a vaga de estágio em Frontend na The White Rabbit (TWR).
 
 ## 🚀 Demonstração
-**Acesse a aplicação aqui:** [Colocar link da Vercel <<<]
 
-**Repositório:** [\[Link do GitHub\]](https://github.com/FrantzJupiter/funil-twr)
+**Acesse a aplicação aqui:** [funil-twr-tawny.vercel.app](https://funil-twr-tawny.vercel.app/)
+
+**Repositório:** [github.com/FrantzJupiter/funil-twr](https://github.com/FrantzJupiter/funil-twr)
 
 ---
 
