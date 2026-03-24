@@ -1,8 +1,9 @@
 "use client";
 
-import { Handle, Position, useReactFlow, NodeResizer } from '@xyflow/react';
+import { Handle, Position, useReactFlow, NodeResizer, NodeProps } from '@xyflow/react';
 import { MousePointerClick, Users, X, TrendingUp, ChevronDown } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { FunnelNodeType } from '@/types/funnel';
 
 const STEP_TYPES = [
   'Topo de Funil',
@@ -70,7 +71,7 @@ function NumericInput({ value, onChange }: { value: number; onChange: (v: number
   );
 }
 
-export default function FunnelNode({ id, data, selected }: { id: string; data: any; selected: boolean }) {
+export default function FunnelNode({ id, data, selected }: NodeProps<FunnelNodeType>) {
   const { updateNodeData, setNodes } = useReactFlow();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);

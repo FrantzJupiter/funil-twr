@@ -16,21 +16,39 @@ import {
   applyNodeChanges,
   applyEdgeChanges,
   addEdge,
-  Node,
   Edge,
   OnNodesChange,
   OnEdgesChange,
   OnConnect,
+  OnConnectStart,
   ReactFlowInstance,
   useReactFlow,
   ReactFlowProvider,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+
 import FunnelNode from './FunnelNode';
+import { loadFunnel, saveFunnel } from '@/lib/storage';
+import { FunnelNodeType, FunnelStepType } from '@/types/funnel';
 
 const nodeTypes = { customFunnelNode: FunnelNode };
 
-const PREDEFINED_STEPS = [
+type PredefinedStep = {
+  label: string;
+  icon: React.ElementType;
+  color: string;
+  bg: string;
+  border: string;
+  dot: string;
+  data: {
+    label: string;
+    stepType: FunnelStepType;
+    visitors: number;
+    conversions: number;
+  };
+};
+
+const PREDEFINED_STEPS: PredefinedStep[] = [
   {
     label: 'Anúncio',
     icon: Megaphone,
@@ -87,27 +105,7 @@ const PREDEFINED_STEPS = [
   },
 ];
 
-const STORAGE_KEY = 'twr-funnel-builder-v1';
-
-function loadFromStorage(): { nodes: Node[]; edges: Edge[] } | null {
-  try {
-    if (typeof window === 'undefined') return null;
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
-}
-
-function saveToStorage(nodes: Node[], edges: Edge[]) {
-  try {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ nodes, edges }));
-  } catch {}
-}
-
-const defaultNodes: Node[] = [
+const defaultNodes: FunnelNodeType[] = [
   {
     id: '1',
     type: 'customFunnelNode',
@@ -121,51 +119,65 @@ const defaultNodes: Node[] = [
     data: { label: 'Landing Page', stepType: 'Landing Page', visitors: 400, conversions: 120 },
   },
 ];
+
 const defaultEdges: Edge[] = [
   { id: 'e1-2', source: '1', target: '2', animated: true },
 ];
 
 function FunnelBuilderInner() {
-  const [nodes, setNodes] = useState<Node[]>(() => loadFromStorage()?.nodes ?? defaultNodes);
-  const [edges, setEdges] = useState<Edge[]>(() => loadFromStorage()?.edges ?? defaultEdges);
+  const [nodes, setNodes] = useState<FunnelNodeType[]>(defaultNodes);
+  const [edges, setEdges] = useState<Edge[]>(defaultEdges);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [savedIndicator, setSavedIndicator] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   const { setCenter } = useReactFlow();
-  const rfInstance = useRef<ReactFlowInstance | null>(null);
+  const rfInstance = useRef<ReactFlowInstance<FunnelNodeType, Edge> | null>(null);
+  
   const connectingNodeId = useRef<string | null>(null);
   const connectingHandleType = useRef<'source' | 'target' | null>(null);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+    const saved = loadFunnel();
+    if (saved) {
+      setNodes(saved.nodes as FunnelNodeType[]);
+      setEdges(saved.edges);
+    }
+  }, []);
 
   useEffect(() => {
+    if (!mounted) return;
+    
     const timer = setTimeout(() => {
-      saveToStorage(nodes, edges);
+      saveFunnel(nodes, edges);
       setSavedIndicator(true);
       setTimeout(() => setSavedIndicator(false), 1500);
     }, 600);
+    
     return () => clearTimeout(timer);
-  }, [nodes, edges]);
+  }, [nodes, edges, mounted]);
 
-  const onNodesChange: OnNodesChange = useCallback(
-    changes => setNodes(nds => applyNodeChanges(changes, nds)), []
+  const onNodesChange: OnNodesChange<FunnelNodeType> = useCallback(
+    changes => setNodes(nds => applyNodeChanges(changes, nds) as FunnelNodeType[]), []
   );
+  
   const onEdgesChange: OnEdgesChange = useCallback(
     changes => setEdges(eds => applyEdgeChanges(changes, eds)), []
   );
+  
   const onConnect: OnConnect = useCallback(params => {
     connectingNodeId.current = null;
     connectingHandleType.current = null;
     setEdges(eds => addEdge({ ...params, animated: true }, eds));
   }, []);
 
-  const onConnectStart = useCallback((_: any, params: any) => {
+  const onConnectStart: OnConnectStart = useCallback((event, params) => {
     connectingNodeId.current = params.nodeId;
     connectingHandleType.current = params.handleType;
   }, []);
 
-  const onConnectEnd = useCallback((event: any) => {
+  const onConnectEnd = useCallback((event: MouseEvent | TouchEvent) => {
     if (!connectingNodeId.current || !rfInstance.current) return;
     const target = event.target as HTMLElement;
     if (!target.classList.contains('react-flow__pane')) return;
@@ -180,7 +192,7 @@ function FunnelBuilderInner() {
     const position = rfInstance.current.screenToFlowPosition({ x: clientX, y: clientY });
 
     const newNodeId = uuidv4();
-    const newNode: Node = {
+    const newNode: FunnelNodeType = {
       id: newNodeId,
       type: 'customFunnelNode',
       position,
@@ -191,17 +203,19 @@ function FunnelBuilderInner() {
         conversions: 0,
       },
     };
+    
     const newEdge: Edge = {
       id: uuidv4(),
       source: handleType === 'target' ? newNodeId : originNodeId,
       target: handleType === 'target' ? originNodeId : newNodeId,
       animated: true,
     };
+    
     setNodes(nds => nds.concat(newNode));
     setEdges(eds => eds.concat(newEdge));
   }, []);
 
-  const handleSidebarStep = useCallback((step: (typeof PREDEFINED_STEPS)[number]) => {
+  const handleSidebarStep = useCallback((step: PredefinedStep) => {
     setNodes(currentNodes => {
       const existing = currentNodes.find(n => n.data?.stepType === step.data.stepType);
 
@@ -215,7 +229,7 @@ function FunnelBuilderInner() {
             { zoom: 1.15, duration: 550 }
           );
         }, 30);
-        return currentNodes.map(n => ({ ...n, selected: n.id === existing.id })) as Node[];
+        return currentNodes.map(n => ({ ...n, selected: n.id === existing.id })) as FunnelNodeType[];
       }
 
       const pos = rfInstance.current
@@ -225,14 +239,15 @@ function FunnelBuilderInner() {
           })
         : { x: 200 + Math.random() * 200, y: 100 + Math.random() * 200 };
 
-      const newNode: Node = {
+      const newNode: FunnelNodeType = {
         id: uuidv4(),
         type: 'customFunnelNode',
         position: pos,
         selected: true,
         data: { ...step.data },
       };
-      return [...(currentNodes.map(n => ({ ...n, selected: false })) as Node[]), newNode];
+      
+      return [...(currentNodes.map(n => ({ ...n, selected: false })) as FunnelNodeType[]), newNode];
     });
   }, [setCenter]);
 
@@ -244,21 +259,21 @@ function FunnelBuilderInner() {
         })
       : { x: 200 + Math.random() * 200, y: 100 + Math.random() * 200 };
 
-    setNodes(nds => [
-      ...nds,
-      {
-        id: uuidv4(),
-        type: 'customFunnelNode',
-        position: pos,
-        data: { label: 'Nova Etapa', stepType: 'Meio de Funil', visitors: 0, conversions: 0 },
-      },
-    ]);
+    const newNode: FunnelNodeType = {
+      id: uuidv4(),
+      type: 'customFunnelNode',
+      position: pos,
+      data: { label: 'Nova Etapa', stepType: 'Meio de Funil', visitors: 0, conversions: 0 },
+    };
+
+    setNodes(nds => [...nds, newNode]);
   };
 
   const clearCanvas = () => {
     if (confirm('Limpar todo o funil? Esta ação não pode ser desfeita.')) {
       setNodes([]);
       setEdges([]);
+      saveFunnel([], []);
     }
   };
 
@@ -267,10 +282,14 @@ function FunnelBuilderInner() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'funil.json';
+    a.download = 'funil-twr.json';
     a.click();
     URL.revokeObjectURL(url);
   };
+
+  if (!mounted) {
+    return <div className="w-full h-screen bg-slate-50 dark:bg-slate-950" />;
+  }
 
   return (
     <div className="w-full h-screen flex flex-col bg-slate-50 dark:bg-slate-950">
@@ -332,13 +351,13 @@ function FunnelBuilderInner() {
             </p>
             {PREDEFINED_STEPS.map((step) => {
               const Icon = step.icon;
-              const exists = mounted && nodes.some(n => n.data?.stepType === step.data.stepType);
+              const exists = nodes.some(n => n.data?.stepType === step.data.stepType);
               return (
                 <button
                   key={step.label}
                   onClick={() => handleSidebarStep(step)}
                   title={exists ? `Selecionar "${step.label}"` : `Adicionar "${step.label}"`}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg border text-left transition-all duration-150 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap ${step.bg} ${step.border}`}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg border text-left transition-all duration-150 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap cursor-pointer ${step.bg} ${step.border}`}
                 >
                   <Icon size={14} className={`shrink-0 ${step.color}`} />
                   <span className={`text-xs font-medium ${step.color}`}>{step.label}</span>
@@ -360,11 +379,11 @@ function FunnelBuilderInner() {
           <ReactFlow
             nodes={nodes}
             edges={edges}
-            onNodesChange={onNodesChange}
+            onNodesChange={onNodesChange as OnNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onConnectStart={onConnectStart}
-            onConnectEnd={onConnectEnd}
+            onConnectEnd={onConnectEnd as (event: MouseEvent | TouchEvent) => void}
             onInit={inst => { rfInstance.current = inst; }}
             nodeTypes={nodeTypes}
             fitView
@@ -374,7 +393,16 @@ function FunnelBuilderInner() {
             multiSelectionKeyCode="Shift"
           >
             <Background color="#94a3b8" gap={20} size={1} style={{ opacity: 0.25 }} />
-            <Controls className="[&_.react-flow__controls-button]:!bg-slate-700 [&_.react-flow__controls-button]:!border-slate-600 [&_.react-flow__controls-button]:!shadow-none [&_.react-flow__controls-button:hover]:!bg-slate-600 [&_.react-flow__controls-button_svg]:!fill-slate-100" />
+            <Controls className="
+              [&_.react-flow__controls-button]:!bg-white 
+              dark:[&_.react-flow__controls-button]:!bg-slate-900 
+              [&_.react-flow__controls-button]:!border-slate-200 
+              dark:[&_.react-flow__controls-button]:!border-slate-800 
+              [&_.react-flow__controls-button_svg]:!fill-slate-600 
+              dark:[&_.react-flow__controls-button_svg]:!fill-blue-400 
+              hover:[&_.react-flow__controls-button]:!bg-slate-50 
+              dark:hover:[&_.react-flow__controls-button]:!bg-slate-800
+            " />            
             <MiniMap
               zoomable
               pannable
