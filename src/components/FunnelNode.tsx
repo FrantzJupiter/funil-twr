@@ -5,6 +5,7 @@ import { MousePointerClick, Users, X, TrendingUp, ChevronDown } from 'lucide-rea
 import { useState, useRef, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { FunnelNodeType } from '@/types/funnel';
+import { FUNNEL_METRICS } from '@/lib/constants';
 
 function NumericInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   const [editing, setEditing] = useState(false);
@@ -58,12 +59,19 @@ export default function FunnelNode({ id, data, selected }: NodeProps<FunnelNodeT
   }, []);
 
   return (
-    <div style={{ width: 280, height: 180 }} className="relative group font-sans">
+    <div style={{ width: FUNNEL_METRICS.NODE_WIDTH, height: FUNNEL_METRICS.NODE_HEIGHT }} className="relative group font-sans">
       <Handle 
         type="target" 
         position={Position.Top} 
-        style={{ left: '50%', transform: 'translateX(-50%)', background: currentTheme === 'dark' ? '#94a3b8' : '#475569' }}
-        className="w-3 h-3 border-2 border-slate-700 dark:border-slate-300 z-50" 
+        style={{ 
+          left: '50%', 
+          top: '-7px',
+          transform: 'translateX(-50%)', 
+          background: currentTheme === 'dark' ? '#94a3b8' : '#475569',
+          width: '14px',
+          height: '14px'
+        }}
+        className="border-2 border-slate-700 dark:border-slate-300 z-50 transition-transform hover:scale-125" 
       />
 
       <div 
@@ -110,11 +118,11 @@ export default function FunnelNode({ id, data, selected }: NodeProps<FunnelNodeT
         />
 
         <div className="flex flex-col gap-2.5">
-          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium tracking-tight">
+          <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 font-semibold tracking-tight">
             <div className="flex items-center gap-2.5"><Users size={14} /><span>Visitantes</span></div>
             <NumericInput value={data.visitors} onChange={v => updateNodeData(id, { visitors: v })} />
           </div>
-          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium tracking-tight">
+          <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 font-semibold tracking-tight">
             <div className="flex items-center gap-2.5"><MousePointerClick size={14} /><span>Conversões</span></div>
             <NumericInput value={data.conversions} onChange={v => updateNodeData(id, { conversions: v })} />
           </div>
@@ -132,8 +140,15 @@ export default function FunnelNode({ id, data, selected }: NodeProps<FunnelNodeT
       <Handle 
         type="source" 
         position={Position.Bottom} 
-        style={{ left: '50%', bottom: '0px', transform: 'translateX(-50%)', background: currentTheme === 'dark' ? '#94a3b8' : '#475569' }}
-        className="w-3 h-3 border-2 border-slate-700 dark:border-slate-300 z-50" 
+        style={{ 
+          left: '50%', 
+          bottom: '-7px',
+          transform: 'translateX(-50%)', 
+          background: currentTheme === 'dark' ? '#94a3b8' : '#475569',
+          width: '14px',
+          height: '14px'
+        }}
+        className="border-2 border-slate-700 dark:border-slate-300 z-50 transition-transform hover:scale-125" 
       />
     </div>
   );

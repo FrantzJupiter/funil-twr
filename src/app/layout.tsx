@@ -1,28 +1,27 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "next-themes";
 import { Providers } from "./providers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({ 
   subsets: ["latin"],
+  preload: false 
 });
 
 export const metadata: Metadata = {
-  title: "TWR Funnel Creator - Frantz",
-  description: "Desafio técnico para vaga de estágio Front-end.",
+  title: "TWR | Criador de Funil",
+  description: "Desafio técnico Frontend para a The White Rabbit",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={inter.className}>
         <Providers>
           {children}
         </Providers>
