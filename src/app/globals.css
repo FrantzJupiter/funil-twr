@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/**
+ * ARQUITETURA DE DESIGN:
+ * - Uso de variáveis HSL para permitir controle dinâmico de opacidade e tons.
+ * - Suporte nativo a Dark Mode via classe `.dark`.
+ * - O layout 'overflow: hidden' emula o comportamento de aplicações SaaS (Desktop-like),
+ * garantindo que o scroll ocorra apenas dentro do canvas do React Flow.
+ */
+
 @custom-variant dark (&:is(.dark *));
 
 @theme {
@@ -37,6 +45,7 @@ html, body {
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
+  transition: background-color 0.5s ease;
 }
 
 @layer base {
